@@ -1,0 +1,16 @@
+<div class="content">
+    <h1>Opsgenie</h1>
+    
+    <form action="opsgenie/index/simulate" method="get">
+	<select name="schedule">
+	<? 
+		foreach(explode(",", $this->schedules) as $name){
+			echo "<option>$name</option>";
+		}
+	?>
+	</select>
+	<br />
+	<br />
+	<input type="submit" value="Clock on for <?= $this->duration ?> hours">
+    </form>
+</div>

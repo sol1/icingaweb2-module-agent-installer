@@ -1,0 +1,4 @@
+Module: opsgenie
+Version: 0.1
+Description: OpsGenie oncall
+  This module adds the ability to set the current users oncall status to active.
