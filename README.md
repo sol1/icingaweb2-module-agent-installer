@@ -8,7 +8,9 @@ Gives the user the ability to go on call for their OpsGenie schedules directly f
 
 ## Installation
 Drop the opsgenie folder in your icingaweb2 module folder (Ensure that the folder is name `opsgenie`). 
+
 Enable in `Configuration > Modules > opsgenie`.
+
 Configure module under `Configuration > Modules > opsgenie > config`.
 
 ## Todo
