@@ -12,4 +12,4 @@ Drop the opsgenie folder in your icingaweb2 module folder and enable in `Configu
 ## Todo
  - Set custom rotation name.
  - Adjust rotation duration directly from opsgenie tab.
- - Actually submit api call.
+ - Better handling of API errors.

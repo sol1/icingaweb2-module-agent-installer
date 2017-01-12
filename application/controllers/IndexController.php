@@ -29,8 +29,7 @@ class Opsgenie_IndexController extends Controller {
 	$scheduleID = json_decode($json)->id;
 
 	
-	echo "<pre>";
-	echo '{
+	$requestBody = '{
      		"apiKey": "'. $apiKey .'",
      		"id" : "'. $scheduleID .'",
      		"timezone" : "Australia/Sydney",
@@ -45,8 +44,21 @@ class Opsgenie_IndexController extends Controller {
     	     		}
     		]
 	}';
-	echo "</pre>";
 
-	//echo (1 > 2 ? "Success!" : "Fail");
+
+	$opts = array('http' =>
+	    array(
+	        'method'  => 'POST',
+	        'header'  => 'Content-type: application/json', 
+	        'content' => $requestBody
+	    )
+	);
+	
+	$context  = stream_context_create($opts);
+	
+	$result = json_decode(file_get_contents('https://api.opsgenie.com/v1/json/schedule', false, $context));
+	
+	echo "<h1>$result->status</h1>";
+	echo ($result->code != 200 ? "Error code: $result->code" : NULL);
     }
 }
