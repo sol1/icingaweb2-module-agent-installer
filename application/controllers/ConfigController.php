@@ -1,10 +1,10 @@
 <?php
 /* Icinga Web 2 | (c) 2013-2015 Icinga Development Team | GPLv2+ */
 
-namespace Icinga\Module\Agentinstaller\Controllers;
+namespace Icinga\Module\Opsgenie\Controllers;
 
 use Icinga\Web\Controller;
-use Icinga\Module\Agentinstaller\Forms\Config\GeneralConfigForm;
+use Icinga\Module\Opsgenie\Forms\Config\GeneralConfigForm;
 
 class ConfigController extends Controller
 {

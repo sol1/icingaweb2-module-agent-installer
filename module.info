@@ -1,4 +1,4 @@
-Module: AgentInstaller
+Module: opsgenie
 Version: 0.1
-Description: Agent installer
-  This module adds the ability to generate a windows installer for a new agent, based on a few paremeters.
+Description: OpsGenie oncall
+  This module adds the ability to set the current users oncall status to active.
