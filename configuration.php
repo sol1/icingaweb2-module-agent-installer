@@ -1,8 +1,8 @@
 <?php
 
-$section = $this->menuSection('Opsgenie', array(
-    'url' => 'opsgenie',
-    'icon' => 'clock'
+$section = $this->menuSection('Agent Installer', array(
+    'url' => 'agentinstaller',
+    'icon' => 'download'
 ));
 
 
