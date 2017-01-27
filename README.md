@@ -5,12 +5,15 @@ Gives the user the ability to generate a new client configuration, SSL keys and 
  - Drop the agentinstaller folder in your icingaweb2 module folder (Ensure that the folder is name `agentinstaller`).
  - Add `www-data ALL=(ALL) NOPASSWD: /usr/sbin/icinga2, /usr/bin/makensis` to /etc/sudoers.
  - `# mkdir /var/www/icingaclient`
- - `# mkdir /var/www/icingaclient/_builds`
- - `# mkdir /var/www/icingaclient/_working_dir`
+ - `# mkdir /var/www/icingaclient/builds`
+ - `# mkdir /var/www/icingaclient/working-dir`
+ - `# mkdir /var/www/icingaclient/server-configs`
  - `# chown www-data /var/www/icingaclient`
- - `# chown nagios:nagios /var/www/icingaclient/_builds`
- - `# chown www-data:www-data /var/www/icingaclient/_working_dir`
- - move `icinga2.conf` and `icinga2-setup-windows-child.nsis` to `/var/www/icingaclient/_working_dir/` and chown them to `www-data:www-data`
+ - `# chown nagios:nagios /var/www/icingaclient/builds`
+ - `# chown www-data:www-data /var/www/icingaclient/working-dir`
+ - `# chown www-data:www-data /var/www/icingaclient/server-configs`
+ - move `icinga2.conf` and `icinga2-setup-windows-child.nsis` to `/var/www/icingaclient/working-dir/` and chown them to `www-data:www-data`
+ - Add `include_recursive "/var/www/icingaclient/server-configs"` to your `/etc/icinga2/icinga2.conf`
  - restart icinga2 `systemctl restart icinga2.service`
  - Enable in `Configuration > Modules > agentinstaller`
 
