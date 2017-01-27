@@ -23,7 +23,7 @@ class AgentInstaller_IndexController extends Controller {
 	$master_port = "5665";
 	$output_dir = "/var/www/icingaclient/";
 
-	$server_zones_file = $output_dir . "$parent_name/$client_name.conf";
+	$server_zones_file = $output_dir . "server-configs/$parent_name/$client_name.conf";
 	
 	if (file_exists($zone_name)){
 	    echo "Client zones file ($server_zones_file) exists.";
@@ -56,14 +56,13 @@ object Zone "$client_name" {
 object Host "$client_name" {
         import "generic-host"
         address = "$client_ip"
-q
         vars.os = "windows"
         vars.client_endpoint = name
 }
 EOT;
 	
-	if(!is_dir($output_dir . $parent_name)){
- 	    mkdir($output_dir . $parent_name);
+	if(!is_dir($output_dir . "server-configs/" . $parent_name)){
+ 	    mkdir($output_dir . "server-configs/" . $parent_name);
 	}
 
 	$result = file_put_contents($server_zones_file, $config);
@@ -72,13 +71,13 @@ EOT;
 	$safe_client = escapeshellarg($client_name);
 
 	$cert_res = shell_exec("sudo -u nagios icinga2 pki new-cert ".
-		"--cn {$output_dir}_working_dir/$safe_client ".
-		"--key {$output_dir}_working_dir/$safe_client.key ".
-		"--csr {$output_dir}_working_dir/$safe_client.csr");
+		"--cn {$output_dir}working-dir/$safe_client ".
+		"--key {$output_dir}working-dir/$safe_client.key ".
+		"--csr {$output_dir}working-dir/$safe_client.csr");
 
 	$csr_res = shell_exec("sudo -u nagios icinga2 pki sign-csr ".
-		"--csr $output_dir"."_working_dir/$safe_client.csr ".
-		"--cert $output_dir"."_working_dir/$safe_client.crt");
+		"--csr $output_dir"."working-dir/$safe_client.csr ".
+		"--cert $output_dir"."working-dir/$safe_client.crt");
 
 	//Generate config file for client
 	$client_config = <<<EOT
@@ -150,15 +149,15 @@ const PluginContribDir = PrefixDir + "/sbin"
 EOT;
 
 	//generate the parsed icinga2.conf to the appropriate directory
-	$result = file_put_contents($output_dir."_working_dir/icinga2.conf", $client_config);
+	$result = file_put_contents($output_dir."working-dir/icinga2.conf", $client_config);
 
 	//run setup generator
-	shell_exec("sudo -u nagios makensis \"-XOutFile ${output_dir}_builds/{$client_name}_setup.exe\" -DPARENT_NAME=$parent_name -DCLIENT_NAME=$client_name ${output_dir}_working_dir/icinga2-setup-windows-child.nsis");
+	shell_exec("sudo -u nagios makensis \"-XOutFile ${output_dir}builds/{$client_name}_setup.exe\" -DPARENT_NAME=$parent_name -DCLIENT_NAME=$client_name ${output_dir}working-dir/icinga2-setup-windows-child.nsis");
 
 	//cleanup files
-	unlink("{$output_dir}_working_dir/{$client_name}.crt");
-	unlink("{$output_dir}_working_dir/{$client_name}.csr");
-	unlink("{$output_dir}_working_dir/{$client_name}.key");
+	unlink("{$output_dir}working-dir/{$client_name}.crt");
+	unlink("{$output_dir}working-dir/{$client_name}.csr");
+	unlink("{$output_dir}working-dir/{$client_name}.key");
 
 	//Download link, necessary due to everthing being an XHR request
 	echo "<a href='../download?clientname=${client_name}' target='_blank'>Download installer</a>";
