@@ -1,0 +1,8 @@
+# Ignore vi/vim temp files.
+*.swp
+
+# Ignore large Windows package binaries.
+*.msi
+
+# Ignore tarballs.
+*.tgz
