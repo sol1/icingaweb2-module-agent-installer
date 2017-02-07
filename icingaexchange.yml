@@ -1,0 +1,18 @@
+name: Windows Agent Installer Module
+description: "file:///README.md"
+url: "https://github.com/sol1/icingaweb2-module-agent-installer"
+tags: installer,automation,host,agent
+vendor: Linux
+target: Operating System
+type: Module
+license: gplv3
+releases: 
+  - 
+    name: 0.1 
+    description: "Initial release"
+    files: 
+      - 
+        name: Agent Installer Module
+        url: "https://github.com/sol1/icingaweb2-module-agent-installer/archive/0.1.zip"
+        description: "First release"
+        checksum: a89dcc6f6a05073eedf1fc8dd6c61e92
