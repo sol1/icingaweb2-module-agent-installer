@@ -50,7 +50,7 @@ EOT;
 	$API_address = $this->Config()->get('agentinstaller', 'apiaddress', 'https://localhost:5665');
 	
 	$url = "${API_address}/v1/config/stages/agentinstaller";
-	echo $API_username . "<br />" . $API_password . "<br />" . $API_address . "<br />" . $url;
+
 	try {
 		$ch = curl_init($url);
 
@@ -76,10 +76,10 @@ EOT;
         		$e->getCode(), $e->getMessage()),
         		E_USER_ERROR);
 	}
-	echo "<pre>";
-	echo $config;
-	echo "</pre>";
-	echo $response;
+	//echo "<pre>";
+	//echo $config;
+	//echo "</pre>";
+	//echo $response;
 
 	//if(!is_dir($output_dir . "server-configs/" . $parent_name)){
  	//    mkdir($output_dir . "server-configs/" . $parent_name);
