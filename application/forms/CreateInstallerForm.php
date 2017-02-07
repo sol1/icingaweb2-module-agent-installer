@@ -6,6 +6,7 @@ namespace Icinga\Module\Agentinstaller\Forms;
 use Icinga\Web\Url;
 use Icinga\Data\Filter\Filter;
 use Icinga\Web\Form;
+use Icinga\Application\Config;
 
 class CreateInstallerForm extends Form
 {
@@ -16,6 +17,42 @@ class CreateInstallerForm extends Form
     {
         $this->setAction('/icingaweb2/agentinstaller/index/generate');
 	$this->setMethod('get');
+	
+	//$conf = new Config();
+
+	//$API_username = $conf->get('agentinstaller', 'apikey', 'no username');
+        //$API_password = $conf->get('agentinstaller', 'apipassword', 'no password');
+        //$API_address = $conf->get('agentinstaller', 'apiaddress', 'https://localhost:5665');
+
+        //$url = "${API_address}/v1/objects/zones";
+
+	//echo $API_username . "<br />" . $API_password . "<br />" . $API_address . "<br />" . $url;
+
+        //try {
+        //        $ch = curl_init($url);
+
+        //        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        //        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        //        curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
+        //        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        //                'Content-Type:application/json',
+        //                'Accept:application/json'
+        //        ));
+
+
+        //        $response = curl_exec($ch);
+        //        if ($response === FALSE)
+        //                throw new Exception(curl_error($ch), curl_errno($ch));
+        //        curl_close($ch);
+        //}catch(Exception $e) {
+        //        trigger_error(sprintf(
+        //                'Curl failed with error #%d: %s',
+        //                $e->getCode(), $e->getMessage()),
+        //                E_USER_ERROR);
+        //}
+
+        //echo $response;
     }
 
     /**
@@ -48,12 +85,23 @@ class CreateInstallerForm extends Form
         )); 
 
 	$this->addElement('text', 'zone-name', array(
-            'label'      => 'Zone name:',
-            'required'   => false,
+            'label'      => 'Zone name (must exist):',
+            'required'   => true,
             'validators' => array(
             )
         )); 
 	
+	//$this->addElement('select', 'zone', array(
+	//   'label'	=> 'Zone Dropdown:',
+	//   'required'	=> true,
+	//   'validators'	=> array(),
+	//   'multiOptions' => array(
+	//	''  => 'select below',
+	//	'yes' => 'yes',
+	//	'no'  => 'no'
+	//   )
+	//));
+
         $this->addElement(
             'submit',
             'btn_submit',
