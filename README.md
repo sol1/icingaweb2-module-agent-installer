@@ -1,6 +1,11 @@
 # The Agent Installer module for icingaweb2
 Gives the user the ability to generate a new client configuration, SSL keys and installer with a single click
 
+## Dependencies
+Ubuntu packages:
+ - php-curl
+ - nsis
+
 ## Installation
  - Drop the agentinstaller folder in your icingaweb2 module folder (Ensure that the folder is name `agentinstaller`).
  - Add `www-data ALL=(ALL) NOPASSWD: /usr/sbin/icinga2, /usr/bin/makensis` to /etc/sudoers.
