@@ -11,15 +11,16 @@ Gives the user the ability to generate a new client configuration, SSL keys and 
  - `# chown www-data /var/www/icingaclient`
  - `# chown nagios:nagios /var/www/icingaclient/builds`
  - `# chown www-data:www-data /var/www/icingaclient/working-dir`
- - `# chown www-data:www-data /var/www/icingaclient/server-configs`
  - move `icinga2.conf` and `icinga2-setup-windows-child.nsis` to `/var/www/icingaclient/working-dir/` and chown them to `www-data:www-data`
- - Add `include_recursive "/var/www/icingaclient/server-configs"` to your `/etc/icinga2/icinga2.conf`
  - restart icinga2 `systemctl restart icinga2.service`
  - Enable in `Configuration > Modules > agentinstaller`
+ - Create API user
+ - Add API user details to the agent installer configuration options in the web interface
+ - Create config package on api server: `curl -ksu API_USER:API_PASS -H 'Accept: application/json' -X POST 'https://localhost:5665/v1/config/packages/agentinstaller'`
 
 ## Todo
  - Fix those ugly installation instructions.
  - Use another method to generate keys so we don't need to sudo anything and everything.
- - Add some configuration options.
  - Show a tree of clients, parents, zones and have the ability to redownload the installer.
  - Manage generated configurations.
+ - Dropdown list of zones instead of text field.
