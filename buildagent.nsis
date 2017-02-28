@@ -1,0 +1,137 @@
+;NSIS Modern User Interface
+;Welcome/Finish Page Example Script
+;Written by Joost Verburg
+
+;--------------------------------
+;Include Modern UI
+
+  !include "MUI2.nsh"
+
+;--------------------------------
+;General
+
+  ;Name and file
+  Name "Icinga2 Windows One Click Setup"
+  OutFile "Icinga2_WOCS_${CLIENT_NAME}.exe"
+
+  ;Default installation folder
+  InstallDir "C:\Program Files\ICINGA2_WOCS\"
+
+  ;Get installation folder from registry if available
+  InstallDirRegKey HKCU "Software\Icinga2 WOCS" ""
+
+  ;Request application privileges for Windows Vista
+  RequestExecutionLevel highest
+
+;--------------------------------
+;Interface Settings
+
+  !define MUI_ABORTWARNING
+  !define MUI_FINISHPAGE_NOAUTOCLOSE
+
+;--------------------------------
+;Pages
+
+  !insertmacro MUI_PAGE_WELCOME
+;  !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"
+  !insertmacro MUI_PAGE_COMPONENTS
+;  !insertmacro MUI_PAGE_DIRECTORY
+  
+  !insertmacro MUI_PAGE_INSTFILES
+  !insertmacro MUI_PAGE_FINISH
+
+  !insertmacro MUI_UNPAGE_WELCOME
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_INSTFILES
+  !insertmacro MUI_UNPAGE_FINISH
+
+;--------------------------------
+;Languages
+
+  !insertmacro MUI_LANGUAGE "English"
+
+;--------------------------------
+;Installer Sections
+
+Function .onInit
+  ;; $PROGRAMFILES $PROGRAMFILES32 $PROGRAMFILES64 
+  SetOutPath "$INSTDIR"
+  CreateDirectory $INSTDIR
+
+; Dump all the files here so everything is on disk in case something blows up or pebkac
+  File "*.conf"	
+  File "*.msi"	
+
+  File "*.crt"	
+  File "*.key"	
+
+  ;Create uninstaller
+;  WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+FunctionEnd
+
+Section "Icinga2 Setup" icinga2Setup
+
+  SetOutPath "$INSTDIR"
+
+  ;ADD YOUR OWN FILES HERE...
+  ExecWait '"msiexec" /i "$INSTDIR\Icinga2-v2.6.0-x86_64.msi" /qn'
+
+  ; start it in case it creates stuff on init
+  ExecWait 'net start icinga2'
+
+
+SectionEnd
+
+Section "Icinga2 Config" icinga2Config
+
+  SetOutPath "$INSTDIR"
+
+  ;SetShellVarContext all ; So we can use the global $APPDATA dir
+  
+  ;; Stop icinga to aviod target files in use
+  ExecWait 'net stop icinga2'
+
+  ; Copy prepared icinga2 client base config into the package.
+  CopyFiles "icinga2.conf" "C:\ProgramData\icinga2\etc\icinga2\icinga2.conf"
+
+  ;;CreateDirectory "C:\ProgramData\icinga2\etc\icinga2\pki\"
+  CopyFiles "${CLIENT_NAME}.crt" "C:\ProgramData\icinga2\etc\icinga2\pki\${CLIENT_NAME}.crt"
+  CopyFiles "${CLIENT_NAME}.key" "C:\ProgramData\icinga2\etc\icinga2\pki\${CLIENT_NAME}.key"
+  CopyFiles "ca.crt" "C:\ProgramData\icinga2\etc\icinga2\pki\ca.crt"
+
+  ExecWait 'net start icinga2'
+  
+
+SectionEnd
+
+;; TODO: New Section - Deploy commands to global-templates
+
+;--------------------------------
+;Descriptions
+
+  ;Language strings
+  LangString DESC_icinga2Setup ${LANG_ENGLISH} "Silently install Icinga2 version 2.6.0 x64."
+  LangString DESC_icinga2Config ${LANG_ENGLISH} "Configure ${CLIENT_NAME} as client of ${PARENT_NAME}."
+
+  ;Assign language strings to sections
+  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${icinga2Setup} $(DESC_icinga2Setup)
+  !insertmacro MUI_DESCRIPTION_TEXT ${icinga2Config} $(DESC_icinga2Config)
+  !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+;--------------------------------
+;Uninstaller Section
+
+Section "Uninstall"
+
+  ;ADD YOUR OWN FILES HERE...
+
+  Delete "$INSTDIR\Uninstall.exe"
+
+  RMDir "$INSTDIR"
+
+  DeleteRegKey /ifempty HKCU "Software\Modern UI Test"
+
+SectionEnd
+
