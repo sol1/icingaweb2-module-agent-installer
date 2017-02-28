@@ -40,7 +40,9 @@ class AgentInstaller_IndexController extends Controller {
 	$client_ip = gethostbyname($client_name);
 	$parent_ip = gethostbyname($parent_name);
 
-	//generate master config file
+	// Generate the 'configuration package' api request body.
+	// See 'Configuration Management' in the Icinga2 API documentation for
+	// format. 
 	$config = <<<EOT
 { "files": { "zones.d/$zone_name/$client_name.conf":"object Endpoint \\"$client_name\\" { host = \\"$client_ip\\", port = \\"5665\\"}, object Zone \\"$client_name\\" { endpoints = [ \\"$client_name\\" ], parent = \\"$zone_name\\"}, object Host \\"$client_name\\" { import \\"generic-host\\", address = \\"$client_ip\\", vars.os = \\"windows\\", vars.client_endpoint = name}" } }
 EOT;
