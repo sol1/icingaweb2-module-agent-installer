@@ -131,7 +131,7 @@ object Endpoint "$client_name" {
 
 object Zone "$client_name" {
 	endpoints = [ "$client_name" ]
-	parent = "$parent_name"
+	parent = "$zone_name"
 }
 
 /* Initialise a global zone that will sync most config to the client. */
