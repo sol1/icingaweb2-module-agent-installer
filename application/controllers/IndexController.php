@@ -98,7 +98,7 @@ EOT;
 	$safe_client = escapeshellarg($client_name);
 
 	$cert_res = shell_exec("sudo -u nagios icinga2 pki new-cert ".
-		"--cn {$output_dir}working-dir/$safe_client ".
+		"--cn $safe_client ".
 		"--key {$output_dir}working-dir/$safe_client.key ".
 		"--csr {$output_dir}working-dir/$safe_client.csr");
 
