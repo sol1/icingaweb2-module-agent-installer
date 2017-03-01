@@ -58,14 +58,6 @@ class CreateInstallerForm extends Form
     /**
      * {@inheritdoc}
      */
-    public function addSubmitButton()
-    {
-        return "hello";
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createElements(array $formData)
     {
         $this->addElement('text', 'client-domain', array(
@@ -76,13 +68,24 @@ class CreateInstallerForm extends Form
             )
         )); 
 
-	$this->addElement('text', 'parent-domain', array(
+        $this->addElement('text', 'client-ip', array(
+            'label'      => 'Client IP:',
+            'required'   => false
+        )); 
+
+        $this->addElement('text', 'parent-domain', array(
             'label'      => 'Parent domain:',
             'required'   => true,
             'validators' => array(
                 'NotEmpty',
             )
         )); 
+
+	$this->addElement('text', 'parent-ip', array(
+            'label'      => 'Parent IP:',
+            'required'   => false
+        ));
+
 
 	$this->addElement('text', 'zone-name', array(
             'label'      => 'Zone name (must exist):',
