@@ -15,44 +15,8 @@ class CreateInstallerForm extends Form
      */
     public function init()
     {
-        $this->setAction('/icingaweb2/agentinstaller/index/generate');
-	$this->setMethod('get');
-	
-	//$conf = new Config();
-
-	//$API_username = $conf->get('agentinstaller', 'apikey', 'no username');
-        //$API_password = $conf->get('agentinstaller', 'apipassword', 'no password');
-        //$API_address = $conf->get('agentinstaller', 'apiaddress', 'https://localhost:5665');
-
-        //$url = "${API_address}/v1/objects/zones";
-
-	//echo $API_username . "<br />" . $API_password . "<br />" . $API_address . "<br />" . $url;
-
-        //try {
-        //        $ch = curl_init($url);
-
-        //        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        //        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        //        curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
-        //        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        //                'Content-Type:application/json',
-        //                'Accept:application/json'
-        //        ));
-
-
-        //        $response = curl_exec($ch);
-        //        if ($response === FALSE)
-        //                throw new Exception(curl_error($ch), curl_errno($ch));
-        //        curl_close($ch);
-        //}catch(Exception $e) {
-        //        trigger_error(sprintf(
-        //                'Curl failed with error #%d: %s',
-        //                $e->getCode(), $e->getMessage()),
-        //                E_USER_ERROR);
-        //}
-
-        //echo $response;
+		$this->setAction('/icingaweb2/agentinstaller/index/generate');
+		$this->setMethod('get');
     }
 
     /**
@@ -61,20 +25,20 @@ class CreateInstallerForm extends Form
     public function createElements(array $formData)
     {
         $this->addElement('text', 'client-domain', array(
-            'label'      => 'Client hostname:',
-            'required'   => true,
-            'validators' => array(
-                'NotEmpty',
+			'label'      => 'Client FQDN:',
+			'required'   => true,
+			'validators' => array(
+			'NotEmpty',
             )
         )); 
 
         $this->addElement('text', 'client-ip', array(
-            'label'      => 'Client address:',
+            'label'      => 'Client IP address:',
             'required'   => false
         )); 
 
         $this->addElement('text', 'parent-domain', array(
-            'label'      => 'Parent hostname:',
+            'label'      => 'Parent FQDN:',
             'required'   => true,
             'validators' => array(
                 'NotEmpty',
@@ -82,7 +46,7 @@ class CreateInstallerForm extends Form
         )); 
 
 	$this->addElement('text', 'parent-ip', array(
-            'label'      => 'Parent address:',
+            'label'      => 'Parent IP address:',
             'required'   => false
         ));
 
