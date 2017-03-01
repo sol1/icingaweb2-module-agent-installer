@@ -9,23 +9,24 @@ use Icinga\Forms\AgentInstaller;
 use Icinga\Module\Agentinstaller\Forms\CreateInstallerForm;
 
 class AgentInstaller_IndexController extends Controller {
-    public function indexAction()
-    {
+	public function indexAction() {
         $form = $this->view->form = new CreateInstallerForm;
     }
     
-    public function generateAction(){
+	public function generateAction(){
 	//Setup
 	$client_name = $_GET['clientdomain'];
+	$client_ip   = $_GET['clientip'];
+
 	$parent_name = $_GET['parentdomain'];
-	$client_ip_ = 	$parent_name = $_GET['parentip'];
+	$parent_name = $_GET['parentip'];
 	$zone_name = $_GET['zonename'];
 
 	$output_dir = "/var/www/icingaclient/";
 
 	$check_exists = shell_exec('icinga object list --type Host --name ' . escapeshellarg($client_name));
 	if (strlen($check_exists) > 0) {
-	    echo "A host client already exists with that name: $client_name";
+	    echo "Client already exists: $client_name";
 	    return 1;
 	}
 
@@ -60,31 +61,22 @@ EOT;
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $config);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    			'Content-Type:application/json',
+			'Content-Type:application/json',
 			'Accept:application/json'
 		));
-		 
-		
+
 		$response = curl_exec($ch);
 		if ($response === FALSE)
 			throw new Exception(curl_error($ch), curl_errno($ch));
-		curl_close($ch);
-	}catch(Exception $e) {
+			curl_close($ch);
+	} catch(Exception $e) {
 		trigger_error(sprintf(
-        		'Curl failed with error #%d: %s',
-        		$e->getCode(), $e->getMessage()),
-        		E_USER_ERROR);
+				'Curl failed with error #%d: %s',
+				$e->getCode(), $e->getMessage()
+			),
+			E_USER_ERROR
+		);
 	}
-	//echo "<pre>";
-	//echo $config;
-	//echo "</pre>";
-	//echo $response;
-
-	//if(!is_dir($output_dir . "server-configs/" . $parent_name)){
- 	//    mkdir($output_dir . "server-configs/" . $parent_name);
-	//}
-
-	//$result = file_put_contents($server_zones_file, $config);
 
 	//Generate ssl keys
 	$safe_client = escapeshellarg($client_name);
@@ -171,7 +163,12 @@ EOT;
 	$result = file_put_contents($output_dir."working-dir/icinga2.conf", $client_config);
 
 	//run setup generator
-	shell_exec("sudo -u nagios makensis \"-XOutFile ${output_dir}builds/{$client_name}_setup.exe\" -DPARENT_NAME=$parent_name -DCLIENT_NAME=$client_name ${output_dir}working-dir/icinga2-setup-windows-child.nsis");
+	shell_exec(
+		"sudo -u nagios makensis".
+		"-DPARENT_NAME=$parent_name".
+		"-DCLIENT_NAME=$client_name".
+		"${output_dir}working-dir/buildagent.nsis"
+	);
 
 	//cleanup files
 	unlink("{$output_dir}working-dir/{$client_name}.crt");
@@ -181,5 +178,5 @@ EOT;
 	//Download link, necessary due to everthing being an XHR request
 	echo "<a href='../download?clientname=${client_name}' target='_blank'>Download installer</a>";
 	
-    }
+	}
 }

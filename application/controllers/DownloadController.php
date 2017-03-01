@@ -19,11 +19,4 @@ class AgentInstaller_DownloadController extends Controller {
 
 	readfile("$file_name");
     }
-
-    public function testAction()
-    {
-	echo "Hello world!";
-
-    }
-
 }
