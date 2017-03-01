@@ -61,7 +61,7 @@ class CreateInstallerForm extends Form
     public function createElements(array $formData)
     {
         $this->addElement('text', 'client-domain', array(
-            'label'      => 'Client domain:',
+            'label'      => 'Client hostname:',
             'required'   => true,
             'validators' => array(
                 'NotEmpty',
@@ -69,12 +69,12 @@ class CreateInstallerForm extends Form
         )); 
 
         $this->addElement('text', 'client-ip', array(
-            'label'      => 'Client IP:',
+            'label'      => 'Client address:',
             'required'   => false
         )); 
 
         $this->addElement('text', 'parent-domain', array(
-            'label'      => 'Parent domain:',
+            'label'      => 'Parent hostname:',
             'required'   => true,
             'validators' => array(
                 'NotEmpty',
@@ -82,13 +82,13 @@ class CreateInstallerForm extends Form
         )); 
 
 	$this->addElement('text', 'parent-ip', array(
-            'label'      => 'Parent IP:',
+            'label'      => 'Parent address:',
             'required'   => false
         ));
 
 
 	$this->addElement('text', 'zone-name', array(
-            'label'      => 'Zone name (must exist):',
+            'label'      => 'Parent zone name:',
             'required'   => true,
             'validators' => array(
             )
