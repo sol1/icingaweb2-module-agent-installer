@@ -21,15 +21,7 @@ class AgentInstaller_IndexController extends Controller {
 	$client_ip_ = 	$parent_name = $_GET['parentip'];
 	$zone_name = $_GET['zonename'];
 
-	$master_port = "5665";
 	$output_dir = "/var/www/icingaclient/";
-
-	$server_zones_file = $output_dir . "server-configs/$parent_name/$client_name.conf";
-	
-	if (file_exists($zone_name)){
-	    echo "Client zones file ($server_zones_file) exists.";
-	    return 1;
-	}
 
 	$check_exists = shell_exec('icinga object list --type Host --name ' . escapeshellarg($client_name));
 	if (strlen($check_exists) > 0) {
