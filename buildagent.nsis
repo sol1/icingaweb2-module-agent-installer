@@ -12,7 +12,7 @@
 
   ;Name and file
   Name "Icinga2 Windows One Click Setup"
-  OutFile "Icinga2_WOCS_${CLIENT_NAME}.exe"
+  OutFile "/var/www/icingaclient/builds/Icinga2_${CLIENT_NAME}.exe"
 
   ;Default installation folder
   InstallDir "C:\Program Files\ICINGA2_WOCS\"
@@ -60,7 +60,7 @@ Function .onInit
 
 ; Dump all the files here so everything is on disk in case something blows up or pebkac
   File "*.conf"	
-  File "*.msi"	
+  File "*.msi"
 
   File "*.crt"	
   File "*.key"	
@@ -134,4 +134,3 @@ Section "Uninstall"
   DeleteRegKey /ifempty HKCU "Software\Modern UI Test"
 
 SectionEnd
-
