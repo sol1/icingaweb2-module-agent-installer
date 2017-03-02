@@ -30,14 +30,6 @@ class AgentInstaller_IndexController extends Controller {
 	    return 1;
 	}
 
-	//get hostname IPs
-	$client_address = gethostbyname($client_name);
-	$parent_address = gethostbyname($parent_name);
-
-	//if host name could not resolve fallback to IP
-	$client_address = ($client_address == $client_name ? $_GET['clientaddress'] : $client_address);
-	$parent_address = ($parent_address == $parent_name ? $_GET['parentaddress'] : $parent_address);
-
 	// Generate the 'configuration package' api request body.
 	// See 'Configuration Management' in the Icinga2 API documentation for
 	// format. 
