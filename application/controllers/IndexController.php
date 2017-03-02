@@ -78,7 +78,51 @@ class AgentInstaller_IndexController extends Controller {
 			"--cert {$outdir}/$safe_client.crt"
 		);
 
+		if (file_exists("{$outdir}/$safe_client.key") === FALSE) {
+			printf("Client key not generated\n");
+			exit(1);
+		}
+		if (file_exists("{$outdir}/$safe_client.csr") === FALSE) {
+			printf("Client cert sign request not generated\n");
+			exit(1);
+		}
+		if (file_exists("{$outdir}/$safe_client.crt") === FALSE) {
+			printf("Client cert not generated\n");
+			exit(1);
+		}
 		return 0;
+	}
+
+	protected function config_agent($cname, $pname, $paddr, $pzone) {
+		if (func_num_args() < 4) {
+			printf("Not enough arguments specified\n");
+			exit(1);
+		}
+		if (strlen($cname) <= 1) {
+			printf("Client name undefined\n");
+			exit(1);
+		}
+		if (strlen($pname) <= 1) {
+			printf("Parent name undefined\n");
+			exit(1);
+		}
+		if (strlen($paddr) <= 1) {
+			printf("Parent IP address undefined\n");
+			exit(1);
+		}
+		if (strlen($pzone) <= 1) {
+			printf("Parent zone undefined\n");
+			exit(1);
+		}
+
+		$f = file_get_contents("icinga2.tmpl"); 
+
+		$f = str_replace("CLIENT_NAME", $cname, $f);
+		$f = str_replace("PARENT_NAME", $pname, $f);
+		$f = str_replace("PARENT_ADDR", $paddr, $f);
+		$f = str_replace("PARENT_ZONE", $pzone, $f);
+
+		return $f;
 	}
 
 	public function generateAction(){
@@ -101,7 +145,7 @@ class AgentInstaller_IndexController extends Controller {
 		// Generate the 'configuration package' api request body.
 		// See 'Configuration Management' in the Icinga2 API documentation for
 		// format. 
-		$confstr = config_string($client_name, $client_address, $parent_zone);
+		$confstr = $this->config_string($client_name, $client_address, $parent_zone);
 		$body = $this->config_json($confstr);
 
 		$API_username = $this->Config()->get('agentinstaller', 'apikey', 'no username');
@@ -140,81 +184,20 @@ class AgentInstaller_IndexController extends Controller {
 		 * Generate signed SSL certificates for the client to the temporary
 		 * directory.
 		 */ 
-		if (config_ssl("{$output_dir}working-dir") != 0) {
+		if ($this->config_ssl("{$output_dir}working-dir") != 0) {
 			printf("Error creating signed client certificates\n");
 			exit(1);
 		}
 
-		//Generate config file for client
-		$client_config = <<<EOT
-/*
- * Initialise an API listener using signed certificates from the master 
- * node. Our client will communicate with its parent node through the
- * Icinga2 API.
- */
-object ApiListener "api" {
-  cert_path = SysconfDir + "/icinga2/pki/$client_name.crt"
-  key_path = SysconfDir + "/icinga2/pki/$client_name.key"
-  ca_path = SysconfDir + "/icinga2/pki/ca.crt"
-
-  accept_config = true
-  accept_commands = true
-}
-
-
-/* Define the Icing child-parent relationship for this node. */
-object Endpoint "$parent_name" {
-	host = "$parent_address"
-	port = "5665"
-}
-
-object Zone "$parent_zone" {
-	endpoints = [ "$parent_name" ]
-}
-
-object Endpoint "$client_name" {
-}
-
-object Zone "$client_name" {
-	endpoints = [ "$client_name" ]
-	parent = "$parent_zone"
-}
-
-/* Initialise a global zone that will sync most config to the client. */
-object Zone "global-templates" {
-	global = true
-}
-
-/* Include config that is enabled using the `icinga2 feature` commands */
-include "features-enabled/*.conf"
-
-/*
- * Although we believe these are not called anywhere we define these constants 
- * just in case. For simplicity we match the node and zone names.
- */ 
-const NodeName = "$client_name"
-const ZoneName = NodeName
-
-/**
- * The Icinga Template Library (ITL) provides a number of useful templates
- * and command definitions.
- * Common monitoring plugin command definitions are included separately.
- */
-include <itl>
-include <plugins>
-include <plugins-contrib>
-include <manubulon>       // Manubulon SNMP
-include <windows-plugins> 
-include <nscp>            // NSClient++ command templates
-
-/* Define paths where the plugin binaries are found. */
-const PluginDir = PrefixDir + "/sbin"
-const ManubulonPluginDir = PrefixDir + "/sbin"
-const PluginContribDir = PrefixDir + "/sbin"
-EOT;
-
-		//generate the parsed icinga2.conf to the appropriate directory
-		$result = file_put_contents($output_dir."working-dir/icinga2.conf", $client_config);
+		/*
+		 * Generate config file for the client and write to the working
+		 * directory.
+		 */
+		$client_config = $this->config_agent(
+			$client_name,
+			$parent_name, $parent_address, $parent_zone
+		);
+		file_put_contents($output_dir."working-dir/icinga2.conf", $client_config);
 
 		//run setup generator
 		shell_exec(
@@ -231,7 +214,7 @@ EOT;
 
 		//Download link, necessary due to everthing being an XHR request
 		echo "<a href='../download?clientname=${client_name}' target='_blank'>Download installer</a>";
-	
+
 	}
 }
 
