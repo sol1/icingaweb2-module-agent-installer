@@ -15,12 +15,12 @@ class AgentInstaller_IndexController extends Controller {
     
 	public function generateAction(){
 	//Setup
-	$client_name = $_GET['clientdomain'];
-	$client_ip   = $_GET['clientip'];
+	$client_name = $_GET['client_name'];
+	$client_address   = $_GET['client_address'];
 
-	$parent_name = $_GET['parentdomain'];
-	$parent_name = $_GET['parentip'];
-	$zone_name = $_GET['zonename'];
+	$parent_name = $_GET['parent_name'];
+	$parent_address = $_GET['parent_address'];
+	$parent_zone = $_GET['parent_zone'];
 
 	$output_dir = "/var/www/icingaclient/";
 
@@ -31,18 +31,18 @@ class AgentInstaller_IndexController extends Controller {
 	}
 
 	//get hostname IPs
-	$client_ip = gethostbyname($client_name);
-	$parent_ip = gethostbyname($parent_name);
+	$client_address = gethostbyname($client_name);
+	$parent_address = gethostbyname($parent_name);
 
 	//if host name could not resolve fallback to IP
-	$client_ip = ($client_ip == $client_name ? $_GET['clientip'] : $client_ip);
-	$parent_ip = ($parent_ip == $parent_name ? $_GET['parentip'] : $parent_ip);
+	$client_address = ($client_address == $client_name ? $_GET['clientaddress'] : $client_address);
+	$parent_address = ($parent_address == $parent_name ? $_GET['parentaddress'] : $parent_address);
 
 	// Generate the 'configuration package' api request body.
 	// See 'Configuration Management' in the Icinga2 API documentation for
 	// format. 
 	$config = <<<EOT
-{ "files": { "zones.d/$zone_name/$client_name.conf":"object Endpoint \\"$client_name\\" { host = \\"$client_ip\\", port = \\"5665\\"}, object Zone \\"$client_name\\" { endpoints = [ \\"$client_name\\" ], parent = \\"$zone_name\\"}, object Host \\"$client_name\\" { import \\"generic-host\\", address = \\"$client_ip\\", vars.os = \\"windows\\", vars.client_endpoint = name}" } }
+{ "files": { "zones.d/$zone_name/$client_name.conf":"object Endpoint \\"$client_name\\" { host = \\"$client_address\\", port = \\"5665\\"}, object Zone \\"$client_name\\" { endpoints = [ \\"$client_name\\" ], parent = \\"$zone_name\\"}, object Host \\"$client_name\\" { import \\"generic-host\\", address = \\"$client_address\\", vars.os = \\"windows\\", vars.client_endpoint = name}" } }
 EOT;
 
 	$API_username = $this->Config()->get('agentinstaller', 'apikey', 'no username');
@@ -107,9 +107,9 @@ object ApiListener "api" {
 }
 
 
-/* Define the Icing child-parent relationship for this node. */
+/* Define the Icing child-parent relationshaddress for this node. */
 object Endpoint "$parent_name" {
-	host = "$parent_ip"
+	host = "$parent_address"
 	port = "5665"
 }
 
