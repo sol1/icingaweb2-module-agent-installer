@@ -154,7 +154,7 @@ class AgentInstaller_IndexController extends Controller {
 		$API_username = $this->Config()->get('agentinstaller', 'apikey', 'no username');
 		$API_password = $this->Config()->get('agentinstaller', 'apipassword', 'no password');
 		$API_address = $this->Config()->get('agentinstaller', 'apiaddress', 'https://localhost:5665');
-	
+
 		$url = "${API_address}/v1/config/stages/agentinstaller";
 
 		try {
@@ -167,9 +167,10 @@ class AgentInstaller_IndexController extends Controller {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-						'Content-Type:application/json',
-						'Accept:application/json'
-						));
+				'Content-Type:application/json',
+				'Accept:application/json'
+				)
+			);
 
 			$response = curl_exec($ch);
 			if ($response === FALSE) {
