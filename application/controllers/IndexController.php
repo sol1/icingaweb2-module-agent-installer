@@ -29,20 +29,23 @@ class AgentInstaller_IndexController extends Controller {
 			exit(1);
 		}
 
-		// Write out an Icinga2 API object definitions.
+		/* Icinga2 API object definitions. */
 		$a  = sprintf("object Endpoint \"%s\" {} ", $cname);
 		$a .= sprintf("object Zone \"%s\" { ", $cname);
 		$a .= sprintf("endpoints = [ \"%s\" ], ", $cname);
 		$a .= sprintf("parent = \"%s\"}, ", $pzone);
 
-		// Write out an Icinga2 host object definition.
+		/* Icinga2 host object definition. */
 		$b  = sprintf("object Host \"%s\" { ", $cname);
 		$b .= sprintf("import \"%s\", ", "generic-host");
 		$b .= sprintf("address = \"%s\", ", $caddr);
 		$b .= sprintf("vars.os = \"%s\", ", "windows");
 		$b .= sprintf("vars.client_endpoint = %s}", "name");
 
-		// Concatentate definitions and return one string of valid Icinga2 config. 
+		/*
+		 * Concatentate definitions, returning valid Icinga2 config as one
+		 * fat string.
+		 */
 		$confstr = $a.$b;
 		
 		return $confstr;
@@ -180,19 +183,13 @@ class AgentInstaller_IndexController extends Controller {
 			);
 		}
 
-		/*
-		 * Generate signed SSL certificates for the client to the temporary
-		 * directory.
-		 */ 
+		 /* Generate client's signed certificates to workspace dir. */
 		if ($this->config_ssl("{$output_dir}working-dir") != 0) {
 			printf("Error creating signed client certificates\n");
 			exit(1);
 		}
 
-		/*
-		 * Generate config file for the client and write to the working
-		 * directory.
-		 */
+		/* Generate Icinga2 agent config file for the client. */
 		$client_config = $this->config_agent(
 			$client_name,
 			$parent_name, $parent_address, $parent_zone
