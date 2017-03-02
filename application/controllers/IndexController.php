@@ -34,7 +34,7 @@ class AgentInstaller_IndexController extends Controller {
 	// See 'Configuration Management' in the Icinga2 API documentation for
 	// format. 
 	$config = <<<EOT
-{ "files": { "zones.d/$zone_name/$client_name.conf":"object Endpoint \\"$client_name\\" { host = \\"$client_address\\", port = \\"5665\\"}, object Zone \\"$client_name\\" { endpoints = [ \\"$client_name\\" ], parent = \\"$zone_name\\"}, object Host \\"$client_name\\" { import \\"generic-host\\", address = \\"$client_address\\", vars.os = \\"windows\\", vars.client_endpoint = name}" } }
+{ "files": { "zones.d/$parent_zone/$client_name.conf":"object Endpoint \\"$client_name\\" { host = \\"$client_address\\", port = \\"5665\\"}, object Zone \\"$client_name\\" { endpoints = [ \\"$client_name\\" ], parent = \\"$parent_zone\\"}, object Host \\"$client_name\\" { import \\"generic-host\\", address = \\"$client_address\\", vars.os = \\"windows\\", vars.client_endpoint = name}" } }
 EOT;
 
 	$API_username = $this->Config()->get('agentinstaller', 'apikey', 'no username');
@@ -58,17 +58,16 @@ EOT;
 		));
 
 		$response = curl_exec($ch);
-		if ($response === FALSE)
+		if ($response === FALSE) {
 			throw new Exception(curl_error($ch), curl_errno($ch));
 			curl_close($ch);
-	} catch(Exception $e) {
-		trigger_error(sprintf(
-				'Curl failed with error #%d: %s',
-				$e->getCode(), $e->getMessage()
-			),
+		} catch(Exception $e) {
+			trigger_error(sprintf(
+				'curl error: %d: %s', $e->getCode(), $e->getMessage()
+				),
 			E_USER_ERROR
-		);
-	}
+			);
+		}
 
 	//Generate ssl keys
 	$safe_client = escapeshellarg($client_name);
@@ -105,7 +104,7 @@ object Endpoint "$parent_name" {
 	port = "5665"
 }
 
-object Zone "$zone_name" {
+object Zone "$parent_zone" {
 	endpoints = [ "$parent_name" ]
 }
 
@@ -114,7 +113,7 @@ object Endpoint "$client_name" {
 
 object Zone "$client_name" {
 	endpoints = [ "$client_name" ]
-	parent = "$zone_name"
+	parent = "$parent_zone"
 }
 
 /* Initialise a global zone that will sync most config to the client. */
