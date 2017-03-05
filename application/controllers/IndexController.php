@@ -25,23 +25,23 @@ class AgentInstaller_IndexController extends Controller {
 		}
 
 		/* Icinga2 API object definitions. */
-		$a  = sprintf("object Endpoint \"%s\" {} ", $cname);
-		$a .= sprintf("object Zone \"%s\" { ", $cname);
-		$a .= sprintf("endpoints = [ \"%s\" ], ", $cname);
-		$a .= sprintf("parent = \"%s\"}, ", $pzone);
+		$s  = sprintf("object Endpoint \"%s\" {} ", $cname);
+		$s .= sprintf("object Zone \"%s\" { ", $cname);
+		$s .= sprintf("endpoints = [ \"%s\" ], ", $cname);
+		$s .= sprintf("parent = \"%s\"}, ", $pzone);
 
 		/* Icinga2 host object definition. */
-		$b  = sprintf("object Host \"%s\" { ", $cname);
-		$b .= sprintf("import \"%s\", ", "generic-host");
-		$b .= sprintf("address = \"%s\", ", $caddr);
-		$b .= sprintf("vars.os = \"%s\", ", "windows");
-		$b .= sprintf("vars.client_endpoint = %s}", "name");
+		$t  = sprintf("object Host \"%s\" { ", $cname);
+		$t .= sprintf("import \"%s\", ", "generic-host");
+		$t .= sprintf("address = \"%s\", ", $caddr);
+		$t .= sprintf("vars.os = \"%s\", ", "windows");
+		$t .= sprintf("vars.client_endpoint = %s}", "name");
 
 		/*
 		 * Concatentate definitions, returning valid Icinga2 config as one
 		 * fat string.
 		 */
-		$confstr = $a.$b;
+		$confstr = $s.$t;
 		
 		return $confstr;
 	}
