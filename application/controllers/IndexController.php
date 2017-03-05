@@ -11,11 +11,6 @@ class AgentInstaller_IndexController extends Controller {
     }
     
 	protected function config_string($cname, $caddr, $pzone) {
-		if (func_num_args() < 3) {
-			printf("Not enough arguments specified\n");
-			exit(1);
-		}
-
 		if (strlen($cname) <= 1) {
 			printf("Client name undefined\n");
 			exit(1);
@@ -97,10 +92,6 @@ class AgentInstaller_IndexController extends Controller {
 	}
 
 	protected function config_agent($cname, $pname, $paddr, $pzone) {
-		if (func_num_args() < 4) {
-			printf("Not enough arguments specified\n");
-			exit(1);
-		}
 		if (strlen($cname) <= 1) {
 			printf("Client name undefined\n");
 			exit(1);
