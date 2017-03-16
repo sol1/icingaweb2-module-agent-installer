@@ -11,19 +11,6 @@ class AgentInstaller_IndexController extends Controller {
     }
     
 	protected function config_string($cname, $caddr, $pzone) {
-		if (strlen($cname) <= 1) {
-			printf("Client name undefined\n");
-			return(-1);
-		}
-		if (strlen($caddr) <= 1) {
-			printf("Client IP address undefined\n");
-			return(-1);
-		}
-		if (strlen($pzone) <= 1) {
-			printf("Parent zone undefined\n");
-			return(-1);
-		}
-
 		/* Icinga2 API object definitions. */
 		$s  = sprintf("object Endpoint \"%s\" {} ", $cname);
 		$s .= sprintf("object Zone \"%s\" { ", $cname);
@@ -42,7 +29,7 @@ class AgentInstaller_IndexController extends Controller {
 		 * fat string.
 		 */
 		$confstr = $s.$t;
-		
+
 		return $confstr;
 	}
 
@@ -92,22 +79,6 @@ class AgentInstaller_IndexController extends Controller {
 	}
 
 	protected function config_agent($cname, $pname, $paddr, $pzone) {
-		if (strlen($cname) <= 1) {
-			printf("Client name undefined\n");
-			exit(1);
-		}
-		if (strlen($pname) <= 1) {
-			printf("Parent name undefined\n");
-			exit(1);
-		}
-		if (strlen($paddr) <= 1) {
-			printf("Parent IP address undefined\n");
-			exit(1);
-		}
-		if (strlen($pzone) <= 1) {
-			printf("Parent zone undefined\n");
-			exit(1);
-		}
 
 		$f = file_get_contents("icinga2.tmpl"); 
 
@@ -119,14 +90,29 @@ class AgentInstaller_IndexController extends Controller {
 		return $f;
 	}
 
+	// Main routine
 	public function generateAction(){
-		//Setup
+		/* Initialise variables from web form only if defined properly. */
 		$client_name = $_GET['client_name'];
+		if strlen($client_name <= 1) {
+			die("Unexpected client name length")
+		}
 		$client_address   = $_GET['client_address'];
-
+		if strlen($client_address <= 1) {
+			die("Unexpected client address length")
+		}
 		$parent_name = $_GET['parent_name'];
+		if strlen($parent_name <= 1) {
+			die("Unexpected parent name length");
+		}
 		$parent_address = $_GET['parent_address'];
+		if strlen($parent_address <= 1) {
+			die("Unexpected parent address length");
+		}
 		$parent_zone = $_GET['parent_zone'];
+		if strlen($parent_zone <= 1) {
+			die("Unexpected parent zone length");
+		}
 
 		$output_dir = "/var/www/icingaclient/";
 
