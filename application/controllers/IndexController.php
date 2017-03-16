@@ -13,15 +13,15 @@ class AgentInstaller_IndexController extends Controller {
 	protected function config_string($cname, $caddr, $pzone) {
 		if (strlen($cname) <= 1) {
 			printf("Client name undefined\n");
-			exit(1);
+			return(-1);
 		}
 		if (strlen($caddr) <= 1) {
 			printf("Client IP address undefined\n");
-			exit(1);
+			return(-1);
 		}
 		if (strlen($pzone) <= 1) {
 			printf("Parent zone undefined\n");
-			exit(1);
+			return(-1);
 		}
 
 		/* Icinga2 API object definitions. */
@@ -140,6 +140,10 @@ class AgentInstaller_IndexController extends Controller {
 		// See 'Configuration Management' in the Icinga2 API documentation for
 		// format. 
 		$confstr = $this->config_string($client_name, $client_address, $parent_zone);
+		if ($confstr < 0) {
+			die("Error creating string from input parameters");
+		}
+
 		$body = $this->config_json($confstr);
 
 		$API_username = $this->Config()->get('agentinstaller', 'apikey', 'no username');
