@@ -90,6 +90,40 @@ class AgentInstaller_IndexController extends Controller {
 		return $f;
 	}
 
+	/* Find the current 'active-stage' property of configuration packages. */
+	protected function activestage() {
+		$url = "https://localhost:5665/v1/config/packages";
+
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt(
+			$ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type:application/json',
+				'Accept:application/json'
+			)
+		);
+
+		$res = curl_exec($ch);
+		if ($res === FALSE) {
+				throw new Exception(curl_error($ch), curl_errno($ch));
+				curl_close($ch);
+		} else {
+			curl_close($ch);
+			/*
+			 * Loop through the 'results' array. Each entry is a dictionary
+			 * representing each configuration package.
+			 */
+			$jres = json_decode($res, true);
+			$pkg = $jres['results'];
+			foreach ($pkg as $k => $v) {
+				return $v['active-stage'];
+			}
+		}
+	}
+
 	// Main routine
 	public function generateAction(){
 		/* Initialise variables from web form only if defined properly. */
