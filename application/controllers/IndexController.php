@@ -135,8 +135,8 @@ class AgentInstaller_IndexController extends Controller {
 		curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				'Content-Type:application/json',
-				'Accept:application/json'
+			'Content-Type:application/json',
+			'Accept:application/json'
 			)
 		);
 
@@ -164,6 +164,26 @@ class AgentInstaller_IndexController extends Controller {
 				}
 			}
 			return $files;
+		}
+	}
+
+	/* Read contents of given file from the active stage.  */
+	protected function catconf ($f) {
+		$base = "https://suboptic.sol1.net:5665/v1/config/files/_api";
+		$url = sprintf("%s/%s/%s", $url, activestage(), $f);
+		
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		$res = curl_exec($ch);
+		if ($res === FALSE) {
+			throw new Exception(curl_error($ch), curl_errno($ch));
+			curl_close($ch);
+		} else {
+			return($res);
 		}
 	}
 
@@ -270,7 +290,6 @@ class AgentInstaller_IndexController extends Controller {
 
 		//Download link, necessary due to everthing being an XHR request
 		echo "<a href='../download?clientname=${client_name}' target='_blank'>Download installer</a>";
-
 	}
 }
 
