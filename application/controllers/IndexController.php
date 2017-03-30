@@ -171,7 +171,7 @@ class AgentInstaller_IndexController extends Controller {
 	protected function catconf ($f) {
 		$base = "https://suboptic.sol1.net:5665/v1/config/files/_api";
 		$url = sprintf("%s/%s/%s", $url, activestage(), $f);
-		
+
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
