@@ -90,7 +90,7 @@ class AgentInstaller_IndexController extends Controller {
 		return $f;
 	}
 
-	/* Find the current 'active-stage' property of configuration packages. */
+	/* Find the current 'active-stage' name of configuration packages. */
 	protected function activestage() {
 		$url = "https://localhost:5665/v1/config/packages";
 
@@ -121,6 +121,49 @@ class AgentInstaller_IndexController extends Controller {
 			foreach ($pkg as $k => $v) {
 				return $v['active-stage'];
 			}
+		}
+	}
+
+	/* For a given stage, list its files as entries in an array. */
+	protected function lsstage($stage) {
+		$url = "https://suboptic.sol1.net:5665/v1/config/stages/agentinstaller/";
+		$url .= $stage;
+
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type:application/json',
+				'Accept:application/json'
+			)
+		);
+
+		$res = curl_exec($ch);
+		if ($res === FALSE) {
+				throw new Exception(curl_error($ch), curl_errno($ch));
+				curl_close($ch);
+		} else {
+			/*
+			 * Loop through the 'results' array.
+			 * {
+			 *     name: "host.conf"
+			 *     type: "file"
+			 * },
+			 * {
+			 *     ...
+			 * },
+			 */
+			$jres = json_decode($res, true);
+			$body = $jres['results'];
+			$files = array();
+			foreach ($body as $k => $v) {
+				if ($v['type'] == "file") {
+					array_push($files, $v['name']);
+				}
+			}
+			return $files;
 		}
 	}
 
