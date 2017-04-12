@@ -79,7 +79,6 @@ class AgentInstaller_IndexController extends Controller {
 	}
 
 	protected function config_agent($cname, $pname, $paddr, $pzone) {
-
 		$f = file_get_contents("icinga2.tmpl"); 
 
 		$f = str_replace("CLIENT_NAME", $cname, $f);
@@ -188,7 +187,7 @@ class AgentInstaller_IndexController extends Controller {
 	}
 
 	// Main routine
-	public function generateAction(){
+	public function generateAction() {
 		/* Initialise variables from web form only if defined properly. */
 		$client_name = $_GET['client_name'];
 		if strlen($client_name <= 1) {
@@ -211,13 +210,6 @@ class AgentInstaller_IndexController extends Controller {
 			die("Unexpected parent zone length");
 		}
 
-		$output_dir = "/var/www/icingaclient/";
-
-		$check_exists = shell_exec('icinga object list --type Host --name ' . escapeshellarg($client_name));
-		if (strlen($check_exists) > 0) {
-			echo "Client already exists: $client_name";
-			return 1;
-		}
 
 		// Generate the 'configuration package' api request body.
 		// See 'Configuration Management' in the Icinga2 API documentation for
@@ -226,8 +218,6 @@ class AgentInstaller_IndexController extends Controller {
 		if ($confstr < 0) {
 			die("Error creating string from input parameters");
 		}
-
-		$body = $this->config_json($confstr);
 
 		$API_username = $this->Config()->get('agentinstaller', 'apikey', 'no username');
 		$API_password = $this->Config()->get('agentinstaller', 'apipassword', 'no password');
@@ -261,8 +251,11 @@ class AgentInstaller_IndexController extends Controller {
 				E_USER_ERROR
 			);
 		}
+	}
 
-		 /* Generate client's signed certificates to workspace dir. */
+	private function makensis() {
+		/* Generate client's signed certificates to workspace dir. */
+		$output_dir = "/var/www/icingaclient/";
 		if ($this->config_ssl("{$output_dir}working-dir") != 0) {
 			printf("Error creating signed client certificates\n");
 			exit(1);
@@ -281,7 +274,7 @@ class AgentInstaller_IndexController extends Controller {
 			"-DPARENT_NAME=$parent_name".
 			"-DCLIENT_NAME=$client_name".
 			"${output_dir}working-dir/buildagent.nsis"
-			);
+		);
 
 		//cleanup files
 		unlink("{$output_dir}working-dir/{$client_name}.crt");
