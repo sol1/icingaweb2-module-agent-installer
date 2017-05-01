@@ -123,7 +123,9 @@ class AgentInstaller_IndexController extends Controller {
 				}
 				return $pkgs;
 			} else {
-				die("Error decoding API response");
+				error_log("Error decoding API response from call
+				    to $API_url");
+				return false;
 			}
 		}
 	}
@@ -290,7 +292,9 @@ class AgentInstaller_IndexController extends Controller {
 		 * Continue only if the specified client has not been configured
 		 * previously; i.e. if a matching config package exists already.
 		 */
-		$pkgs = $this->lspkg();
+		if ($pkgs = $this->lspkg()) === FALSE) {
+		    die("Error while retrieving list of configuration packages");
+		}
 		for ($i = 0; $i < count($pkgs); $i++) {
 			if (strcmp($package, $pkgs[$i]) == 0) {
 				die("Client $client_name has already been
