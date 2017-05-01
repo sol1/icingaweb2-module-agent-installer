@@ -86,6 +86,49 @@ class AgentInstaller_IndexController extends Controller {
 		}
 	}
 
+	/* Return a list of all configuration packages. */
+	protected function lspkg() {
+		$API_username = $this->Config()->get(
+		    'agentinstaller', 'apikey', '');
+		$API_password = $this->Config()->get(
+		    'agentinstaller', 'apipassword', '');
+		$API_url = $this->Config()->get(
+		    'agentinstaller', 'apiaddress', '');
+
+		$API_url .= "/v1/config/packages";
+
+		$ch = curl_init($API_url);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_USERPWD,
+		    $API_username . ":" . $API_password);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		    'Content-Type:application/json',
+		    'Accept:application/json')
+		);
+
+		$res = curl_exec($ch);
+		if ($res === FALSE) {
+			throw new Exception(curl_error($ch), curl_errno($ch));
+			$status = -1;
+			error_log("API query to $API_url failed");
+			curl_close($ch);
+			return $status;
+		} else {
+			if ($json = json_decode($res)) {
+				$pkgs = array();
+				for ($i = 0; $i < count($json->results); $i++) {
+					array_push($pkgs, $json->results[$i]->name);
+				}
+				return $pkgs;
+			} else {
+				die("Error decoding API response");
+			}
+		}
+	}
+
+
 	/* Find the current 'active-stage' name of configuration packages. */
 	protected function activestage($package) {
 		$API_username = $this->Config()->get('agentinstaller',
@@ -242,6 +285,20 @@ class AgentInstaller_IndexController extends Controller {
 		 */
 
 		$package = "agentinstaller.".$client_name;
+
+		/*
+		 * Continue only if the specified client has not been configured
+		 * previously; i.e. if a matching config package exists already.
+		 */
+		$pkgs = $this->lspkg();
+		for ($i = 0; $i < count($pkgs); $i++) {
+			if (strcmp($package, $pkgs[$i]) == 0) {
+				die("Client $client_name has already been
+				    configured");
+			} else {
+			    continue;
+			}
+		}
 
 		if ($this->newpackage($package) != true) {
 			die("Failed to create package for $client_name");
