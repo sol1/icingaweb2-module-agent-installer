@@ -225,15 +225,12 @@ class AgentInstaller_IndexController extends Controller {
 
 	/* Read contents of given file from the active stage.  */
 	protected function catconf ($f) {
-		$base = "https://localhost:5665/v1/config/files/_api";
-		$API_url = sprintf("%s/%s/%s", $base, activestage(), $f);
-
 		$API_username = $this->Config()->get('agentinstaller',
-		'apikey', '');
+		    'apikey', '');
 		$API_password = $this->Config()->get('agentinstaller',
-		'apipassword', '');
+		    'apipassword', '');
 		$API_url      = $this->Config()->get('agentinstaller',
-		'apiaddress', 'https://localhost:5665');
+		    'apiaddress', '');
 
 		$ch = curl_init($API_url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -255,6 +252,40 @@ class AgentInstaller_IndexController extends Controller {
 		}
 	}
 
+	protected function postpkg ($jsonpkg, $pkg) {
+		/* Send new configuration package to Icinga */
+		$API_username = $this->Config()->get('agentinstaller',
+		    'apikey', '');
+		$API_password = $this->Config()->get('agentinstaller',
+		    'apipassword', '');
+		$API_url      = $this->Config()->get('agentinstaller',
+		    'apiaddress', '');
+
+		$API_url .= "/v1/config/stages/$pkg";
+		try {
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonpkg);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			    'Content-Type:application/json',
+			    'Accept:application/json'));
+
+			$response = curl_exec($ch);
+			if ($response === FALSE) {
+				throw new Exception(curl_error($ch), curl_errno($ch));
+				curl_close($ch);
+				return false;
+			}
+		} catch(Exception $e) {
+			trigger_error(sprintf('curl error: %d: %s',
+			    $e->getCode(), $e->getMessage()), E_USER_ERROR);
+		}
+		return true;
+	}
 	/* Main routine. */
 	public function generateAction() {
 		$this->indexAction();
@@ -292,7 +323,7 @@ class AgentInstaller_IndexController extends Controller {
 		 * Continue only if the specified client has not been configured
 		 * previously; i.e. if a matching config package exists already.
 		 */
-		if ($pkgs = $this->lspkg()) === FALSE) {
+		if (($pkgs = $this->lspkg()) === FALSE) {
 		    die("Error while retrieving list of configuration packages");
 		}
 		for ($i = 0; $i < count($pkgs); $i++) {
@@ -308,56 +339,29 @@ class AgentInstaller_IndexController extends Controller {
 			die("Failed to create package for $client_name");
 		}
 
-		if (($stage = $this->activestage($package) ) < 0) {
-			error_log("Failed to find the active stage");
-		}
-
-		if ($files = $this->lsstage($package, $stage) < 0) {
-			error_log("Error listing files of $stage");
-		}
-
-		$conf = array("", "");
-		for ($i = 0; $i <= count($files); $i++) {
-			if ($s = $this->catconf($files[i]) < 0) {
-				error_log("Error reading configuration file $i from stage");
-			}
-			$conf = array($files[i] => $s);
-		}
-
 		/*
-		 * Generate new file name and its contents from user's input to form
-		 * fields. Append the new data to the configuration map.
+		 * Generate new file name and its contents from user's form
+		 * input. Feed into the required data structure by Icinga API.
 		 */
 		$f = sprintf("zones.d/%s/%s.conf", $parent_zone, $client_name);
 		$confstr = $this->form_string($client_name, $client_address, $parent_zone);
-		$conf[$f] = $confstr;
 
-		/* Encode the configuration map into JSON. */
-		//HOW DO THIS?
+		$conf = array($f => $confstr);
+		$files = array("files" => $conf);
+		$body = json_encode($files);
 
-		/* Send new configuration package to Icinga */
-		$API_url = "${API_address}/v1/config/stages/agentinstaller";
-		try {
-			$ch = curl_init($API_url);
+		if (($this->postpkg($body, $package)) != TRUE) {
+			die("Error uploading new client package");
+		}
 
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			    'Content-Type:application/json',
-			    'Accept:application/json'));
-
-			$response = curl_exec($ch);
-			if ($response === FALSE) {
-				throw new Exception(curl_error($ch), curl_errno($ch));
-				curl_close($ch);
-			}
-		} catch(Exception $e) {
-			trigger_error(sprintf('curl error: %d: %s',
-			    $e->getCode(), $e->getMessage()), E_USER_ERROR);
+		/* Verify package was created, with expected contents. */
+		$valid = 0;
+		if (($this->activestage($package)) < 0) {
+			$valid = -1;
+			error_log("Error querying properties of package $package");
+		}
+		if ($valid < 0) {
+			die("Error validating new package $package");
 		}
 	}
 
