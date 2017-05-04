@@ -14,7 +14,7 @@ class AgentInstaller_IndexController extends Controller {
 	 * Generate valid Icinga2 configuration for an icinga2 client from the bare
 	 * essentials.
 	 */
-	protected function form_string($cname, $caddr, $pzone) {
+	protected function formstr(string $cname, string $caddr, string $pzone) {
 		/* Icinga2 cluster object definitions. */
 		$s  = sprintf("object Endpoint \"%s\" {} ", $cname);
 		$s .= sprintf("object Zone \"%s\" { ", $cname);
@@ -33,7 +33,7 @@ class AgentInstaller_IndexController extends Controller {
 		return $confstr;
 	}
 
-	protected function newpackage($package) {
+	protected function newpackage(string $package) {
 		$API_username = $this->Config()->get(
 		    'agentinstaller', 'apikey', '');
 		$API_password = $this->Config()->get(
@@ -132,7 +132,7 @@ class AgentInstaller_IndexController extends Controller {
 
 
 	/* Find the current 'active-stage' name of configuration packages. */
-	protected function activestage($package) {
+	protected function activestage(string $package) {
 		$API_username = $this->Config()->get('agentinstaller',
 		    'apikey', '');
 		$API_password = $this->Config()->get('agentinstaller',
@@ -174,7 +174,7 @@ class AgentInstaller_IndexController extends Controller {
 	}
 
 	/* For a given stage, enumerate files into an array of files. */
-	protected function lsstage($package, $stage) {
+	protected function lsstage(string $package, string $stage) {
 		$API_username = $this->Config()->get('agentinstaller',
 		    'apikey', '');
 		$API_password = $this->Config()->get('agentinstaller',
@@ -224,7 +224,7 @@ class AgentInstaller_IndexController extends Controller {
 	}
 
 	/* Read contents of given file from the active stage.  */
-	protected function catconf ($f) {
+	protected function catconf (string $f) {
 		$API_username = $this->Config()->get('agentinstaller',
 		    'apikey', '');
 		$API_password = $this->Config()->get('agentinstaller',
@@ -252,7 +252,7 @@ class AgentInstaller_IndexController extends Controller {
 		}
 	}
 
-	protected function postpkg ($jsonpkg, $pkg) {
+	protected function postpkg ($jsonpkg, string $pkg) {
 		/* Send new configuration package to Icinga */
 		$API_username = $this->Config()->get('agentinstaller',
 		    'apikey', '');
@@ -274,8 +274,8 @@ class AgentInstaller_IndexController extends Controller {
 			    'Content-Type:application/json',
 			    'Accept:application/json'));
 
-			$response = curl_exec($ch);
-			if ($response === FALSE) {
+			$resp = curl_exec($ch);
+			if ($resp === FALSE) {
 				throw new Exception(curl_error($ch), curl_errno($ch));
 				curl_close($ch);
 				return false;
@@ -285,6 +285,51 @@ class AgentInstaller_IndexController extends Controller {
 			    $e->getCode(), $e->getMessage()), E_USER_ERROR);
 		}
 		return true;
+	}
+
+	protected function getticket (string $cn) {
+		$API_username = $this->Config()->get('agentinstaller',
+		    'apikey', '');
+		$API_password = $this->Config()->get('agentinstaller',
+		    'apipassword', '');
+		$API_url      = $this->Config()->get('agentinstaller',
+		    'apiaddress', '');
+
+		$API_url .= "/v1/actions/generate-ticket";
+
+		$req = array("cn" => $cn);
+		$body = json_encode($req);
+		try {
+			$ch = curl_init($API_url);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			    'Content-Type:application/json',
+			    'Accept:application/json'));
+
+			$resp = curl_exec($ch);
+			if ($resp === FALSE) {
+				throw new Exception(curl_error($ch), curl_errno($ch));
+				curl_close($ch);
+				return false;
+			}
+		} catch(Exception $e) {
+			trigger_error(sprintf('curl error: %d: %s',
+			    $e->getCode(), $e->getMessage()), E_USER_ERROR);
+		}
+
+		$decode = json_decode($resp);
+		(string) $ticket;
+		if ($ticket = $decode->results[0]->ticket) {
+			return $ticket;
+		} else {
+			error_log("No ticket in response to call $API_url");
+			return false;
+		}
 	}
 	/* Main routine. */
 	public function generateAction() {
@@ -312,11 +357,6 @@ class AgentInstaller_IndexController extends Controller {
 			die("Unexpected parent zone length");
 		}
 
-		/* 
-		 * From the current 'stage' list the current files. Create a map of
-		 * configuration filenames to their contents respectively.
-		 */
-
 		$package = "agentinstaller.".$client_name;
 
 		/*
@@ -336,7 +376,7 @@ class AgentInstaller_IndexController extends Controller {
 		}
 
 		if ($this->newpackage($package) != true) {
-			die("Failed to create package for $client_name");
+			die("Failed to create configuration for $client_name");
 		}
 
 		/*
@@ -344,7 +384,7 @@ class AgentInstaller_IndexController extends Controller {
 		 * input. Feed into the required data structure by Icinga API.
 		 */
 		$f = sprintf("zones.d/%s/%s.conf", $parent_zone, $client_name);
-		$confstr = $this->form_string($client_name, $client_address, $parent_zone);
+		$confstr = $this->formstr($client_name, $client_address, $parent_zone);
 
 		$conf = array($f => $confstr);
 		$files = array("files" => $conf);
@@ -365,34 +405,14 @@ class AgentInstaller_IndexController extends Controller {
 		}
 	}
 
-	/* Functions to generate an installer file. Not called anywhere yet. */
-	private function makensis() {
-		/* Generate client's signed certificates to workspace dir. */
-		$output_dir = "/var/www/icingaclient/";
-		if ($this->config_ssl("{$output_dir}working-dir") != 0) {
-			printf("Error creating signed client certificates\n");
-			exit(1);
-		}
-
-		/* Generate Icinga2 agent config file for the client. */
-		$client_config = $this->config_agent(
-			$client_name,
-			$parent_name, $parent_address, $parent_zone
-		);
-		file_put_contents($output_dir."working-dir/icinga2.conf", $client_config);
-
-		//run setup generator
-		shell_exec(
-			"sudo -u nagios makensis".
-			"-DPARENT_NAME=$parent_name".
-			"-DCLIENT_NAME=$client_name".
-			"${output_dir}working-dir/buildagent.nsis"
-		);
-
-		//cleanup files
-		unlink("{$output_dir}working-dir/{$client_name}.crt");
-		unlink("{$output_dir}working-dir/{$client_name}.csr");
-		unlink("{$output_dir}working-dir/{$client_name}.key");
+	/*
+	 * For now, the custom icingaclient(1) program generates all config
+	 * and an exe. Functions of icingaclient(1) should be transitioned to
+	 * PHP functions.
+	 */
+	private function buildexe($cname, $caddr, $pname, $pzone) {
+		shell_exec("sudo icingaclient ".
+		    "$cname $caddr $pname $paddr $pzone");
 
 		//Download link, necessary due to everthing being an XHR request
 		echo "<a href='../download?clientname=${client_name}' target='_blank'>Download installer</a>";
