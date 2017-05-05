@@ -416,7 +416,7 @@ class AgentInstaller_IndexController extends Controller {
 	/* Main routine. */
 	public function generateAction() {
 		$this->indexAction();
-		(string) $devclient = "devclient"
+		(string) $devclient = "devclient";
 
 		/* Initialise variables from web form only if defined properly. */
 		$client_name = $_GET['client_name'];
