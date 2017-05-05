@@ -331,10 +331,20 @@ class AgentInstaller_IndexController extends Controller {
 			return false;
 		}
 	}
-	/* Main routine. */
-	public function generateAction() {
-		$this->indexAction();
 
+	/*
+	 * For now, the custom icingaclient(1) program generates all config
+	 * and an exe. Functions of icingaclient(1) should be transitioned to
+	 * PHP functions.
+	 */
+	private function buildexe($cname, $caddr, $pname, $pzone) {
+		shell_exec("sudo icingaclient ".
+		    "$cname $caddr $pname $paddr $pzone");
+		return true;
+
+	}
+
+	private function realpath() {
 		/* Initialise variables from web form only if defined properly. */
 		$client_name = $_GET['client_name'];
 		if (strlen($client_name) <= 1) {
@@ -356,7 +366,6 @@ class AgentInstaller_IndexController extends Controller {
 		if (strlen($parent_zone) <= 1) {
 			die("Unexpected parent zone length");
 		}
-
 		$package = "agentinstaller.".$client_name;
 
 		/*
@@ -404,19 +413,50 @@ class AgentInstaller_IndexController extends Controller {
 			die("Error validating new package $package");
 		}
 	}
+	/* Main routine. */
+	public function generateAction() {
+		$this->indexAction();
+		(string) $devclient = "devclient"
 
-	/*
-	 * For now, the custom icingaclient(1) program generates all config
-	 * and an exe. Functions of icingaclient(1) should be transitioned to
-	 * PHP functions.
-	 */
-	private function buildexe($cname, $caddr, $pname, $pzone) {
-		shell_exec("sudo icingaclient ".
-		    "$cname $caddr $pname $paddr $pzone");
+		/* Initialise variables from web form only if defined properly. */
+		$client_name = $_GET['client_name'];
+		if (strlen($client_name) <= 1) {
+			die("Unexpected client name length");
+		}
+		$client_address = $_GET['client_address'];
+		if (strlen($client_address) <= 1) {
+			die("Unexpected client address length");
+		}
+		$parent_name = $_GET['parent_name'];
+		if (strlen($parent_name) <= 1) {
+			die("Unexpected parent name length");
+		}
+		$parent_address = $_GET['parent_address'];
+		if (strlen($parent_address) <= 1) {
+			die("Unexpected parent address length");
+		}
+		$parent_zone = $_GET['parent_zone'];
+		if (strlen($parent_zone) <= 1) {
+			die("Unexpected parent zone length");
+		}
+
+
+		/*
+		 * 'Hidden' pathway. If a special client name is specified,
+		 * perform the development routine. Otherwise, use our script
+		 * hack.
+		 */
+		if ($client_name = $devclient) {
+		    $this->realpath();
+		} else {
+			buildexe($client_name, $client_address, $parent_name,
+			    $parent_address, $parent_zone);
+		}
 
 		//Download link, necessary due to everthing being an XHR request
 		echo "<a href='../download?clientname=${client_name}' target='_blank'>Download installer</a>";
 	}
+
 
 	protected function config_ssl($outdir) {
 		$safe_client = escapeshellarg($client_name);
