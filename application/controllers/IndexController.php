@@ -337,7 +337,7 @@ class AgentInstaller_IndexController extends Controller {
 	 * and an exe. Functions of icingaclient(1) should be transitioned to
 	 * PHP functions.
 	 */
-	private function buildexe($cname, $caddr, $pname, $pzone) {
+	private function buildexe($cname, $caddr, $paddr, $pname, $pzone) {
 		shell_exec("sudo icingaclient ".
 		    "$cname $caddr $pname $paddr $pzone");
 		return true;
@@ -446,10 +446,10 @@ class AgentInstaller_IndexController extends Controller {
 		 * perform the development routine. Otherwise, use our script
 		 * hack.
 		 */
-		if ($client_name = $devclient) {
+		if ($client_name == $devclient) {
 		    $this->realpath();
 		} else {
-			buildexe($client_name, $client_address, $parent_name,
+			$this->buildexe($client_name, $client_address, $parent_name,
 			    $parent_address, $parent_zone);
 		}
 
