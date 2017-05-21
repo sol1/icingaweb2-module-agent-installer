@@ -1,0 +1,63 @@
+const ClientName = "CLIENT_NAME"
+const ClientZone = ClientName
+
+const ParentName = "PARENT_NAME"
+const ParentAddr = "PARENT_ADDR"
+const ParentZone = "PARENT_ZONE"
+
+/*
+ * Initialise an API listener using signed certificates from the master 
+ * node. Our client will communicate with its parent node through the
+ * Icinga2 API.
+ */
+object ApiListener "api" {
+  cert_path = SysconfDir + "/icinga2/pki" + ClientName + ".crt"
+  cert_path = SysconfDir + "/icinga2/pki" + ClientName + ".key"
+  ca_path = SysconfDir + "/icinga2/pki/ca.crt"
+
+  accept_config = true
+  accept_commands = true
+}
+
+
+/* Define the Icing parent-child relationship for this node. */
+object Endpoint ParentName {
+	host = ParentAddr
+	port = "5665"
+}
+object Zone ParentZone {
+	endpoints = [ ParentName ]
+}
+
+object Endpoint ClientName {
+}
+object Zone ClientZone {
+	endpoints = [ ClientName ]
+	parent = ParentZone
+}
+
+/* Initialise a global zone that will sync most config to the client. */
+object Zone "global-templates" {
+	global = true
+}
+
+/* Include config that is enabled using the `icinga2 feature` commands */
+include "features-enabled/*.conf"
+
+
+/**
+ * The Icinga Template Library (ITL) provides a number of useful templates
+ * and command definitions.
+ * Common monitoring plugin command definitions are included separately.
+ */
+include <itl>
+include <plugins>
+include <plugins-contrib>
+include <manubulon>       // Manubulon SNMP
+include <windows-plugins> 
+include <nscp>            // NSClient++ command templates
+
+/* Define paths where the plugin binaries are found. */
+const PluginDir = PrefixDir + "/sbin"
+const ManubulonPluginDir = PrefixDir + "/sbin"
+const PluginContribDir = PrefixDir + "/sbin"
