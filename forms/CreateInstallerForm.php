@@ -24,39 +24,67 @@ class CreateInstallerForm extends Form
      */
     public function createElements(array $formData)
     {
-        $this->addElement('text', 'client_name', array(
-			'label'      => 'Client FQDN:',
-			'required'   => true,
-			'validators' => array(
-			'NotEmpty',
-            )
-        )); 
+        $this->addElement(
+	    'text',
+	    'client_name',
+	     array(
+	        'label'       => 'Client CN:',
+	        'required'    => true,
+	        'validators'  => array('NotEmpty',),
+		'description' => $this->translate(
+	            'The common name. The client FQDN '.
+	            'is recommended e.g. db1.sydney.example.com'
+	        )
+	    )
+	); 
 
-        $this->addElement('text', 'client_address', array(
-            'label'      => 'Client IP address:',
-            'required'   => false
-        )); 
+        $this->addElement('text', 'client_address',
+	    array(
+		'label'       => 'Client IP address:',
+		'required'    => false,
+		'description' => $this->translate(
+		    'An address from which the parent ' .
+	            'can ping the client.'
+	        )
+	    )
+	);
 
-        $this->addElement('text', 'parent_name', array(
-            'label'      => 'Parent FQDN:',
-            'required'   => true,
-            'validators' => array(
-                'NotEmpty',
-            )
-        )); 
+        $this->addElement('text', 'parent_name',
+	    array(
+		'label'       => 'Parent CN:',
+	        'required'    => true,
+		'validators'  => array('NotEmpty'),
+		'description' => $this->translate(
+		    "The parent's Endpoint name. Usually this ".
+		    "is the parent's FQDN e.g. ".
+		    "icinga.sydney.example.com"
+		)
+	    )
+	);
 
-	$this->addElement('text', 'parent_address', array(
-            'label'      => 'Parent IP address:',
-            'required'   => false
-        ));
+	$this->addElement('text', 'parent_address',
+	    array(
+		'label'       => 'Parent IP address:',
+		'required'    => false,
+		'description' => $this->translate(
+		    "The address the client will use to ".
+		    "contact the parent"
+		)
+	    )
+	);
 
-
-	$this->addElement('text', 'parent_zone', array(
-            'label'      => 'Parent zone name:',
-            'required'   => true,
-            'validators' => array(
-            )
-        )); 
+	$this->addElement('text', 'parent_zone',
+	    array(
+		'label'      => 'Parent zone name:',
+		'required'   => true,
+		'description' => $this->translate(
+		    "The Zone to which the parent belongs. ".
+		    "A Zone name may be as short as 'sydney'. ".
+		    "Note this may NOT be the same as ".
+		    "the parent Endpoint name."
+		)
+	    )
+	); 
 	
 	//$this->addElement('select', 'zone', array(
 	//   'label'	=> 'Zone Dropdown:',
