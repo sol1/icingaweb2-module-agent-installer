@@ -15,10 +15,8 @@ MODULEPATH= /usr/share/icingaweb2/modules
 # files. Once done, set sane permissions for the PHP source files.
 build: ${srcs} ${APPLICATION} ${APPLICATION}/controllers \
     ${APPLICATION}/forms ${APPLICATION}/views \
-    ${APPLICATION}/configuration.php ${APPLICATION}/module.info
-	@for f in ${srcs}; do \
-		chmod 444 ${APPLICATION}/$$f; \
-	done
+    ${module}/configuration.php ${module}/module.info
+	chmod -R 444 ${APPLICATION}
 
 ${APPLICATION}:
 	mkdir -p $@
@@ -31,7 +29,7 @@ ${APPLICATION}/controllers: ${srcs}
 		echo "Checking $$f for syntax errors..."; \
 		php -l $$f; \
 	done
-	cp -R controllers $@
+	@cp -R controllers $@
 
 ${APPLICATION}/forms: ${srcs}
 	@echo "Building $@..."
@@ -39,18 +37,19 @@ ${APPLICATION}/forms: ${srcs}
 		echo "Checking $$f for syntax errors..."; \
 		php -l $$f; \
 	done
-	cp -R forms $@
+	@cp -R forms $@
 
 ${APPLICATION}/views: views
-	@echo "building $@..."
-	cp -R views $@
+	@echo "Building $@..."
+	@cp -R views $@
 
-${APPLICATION}/configuration.php: configuration.php
-	php -l configuration.php
-	cp configuration.php $@
+${module}/configuration.php: configuration.php
+	@echo "Building $@..."
+	@php -l configuration.php
+	@cp configuration.php $@
 
-${APPLICATION}/module.info: module.info
-	cp module.info $@
+${module}/module.info: module.info
+	@cp module.info $@
 
 install: build
 	cp -R ${module} ${MODULEPATH}
