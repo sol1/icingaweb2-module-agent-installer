@@ -1,4 +1,3 @@
-
 <?php
 
 use Icinga\Web\Controller;
