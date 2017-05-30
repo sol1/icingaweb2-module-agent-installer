@@ -10,9 +10,15 @@ deb packages:
 ## Installation
 Build and install the package with `make`:
 
+` # make
+  # make install `
+
+Finally we have a security sensitive step: we have to give www-data some su
+privileges:
+
 `
- # make
- # make install
+www-data ALL=(ALL) NOPASSWD: /usr/local/bin/icingaclient, /usr/sbin/icinga2,
+/usr/bin/makensis
 `
 
 ## Todo
