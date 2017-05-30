@@ -14,7 +14,8 @@ Build and install the package with `make`:
   # make install `
 
 Finally we have a security sensitive step: we have to give www-data some su
-privileges:
+privileges. Allow www-data to run Icinga2-specific binaries as root in
+/etc/sudoers:
 
 `
 www-data ALL=(ALL) NOPASSWD: /usr/local/bin/icingaclient, /usr/sbin/icinga2,
