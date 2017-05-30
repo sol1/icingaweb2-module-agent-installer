@@ -51,7 +51,7 @@ ${module}/configuration.php: configuration.php
 ${module}/module.info: module.info
 	@cp module.info $@
 
-install: build
+install: clean build
 	cp -R ${module} ${MODULEPATH}
 
 .PHONY: clean
