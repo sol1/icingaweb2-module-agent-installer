@@ -20,8 +20,8 @@ Other prerequisite packages on Debian-based distributions:
 ## Installation
 Build and install the package with `make`:
 
-` # make
-  # make install `
+`# make`  
+`# make install`
 
 Finally we have a security sensitive step: we have to give www-data some su
 privileges. Allow www-data to run Icinga2-specific binaries as root in
