@@ -3,9 +3,19 @@ Make a complete Icinga2 agent package: client configuration, SSL keys and
 Windows .exe installer in a single click
 
 ## Dependencies
-deb packages:
+
+For now, this module is a front end for a shell script,
+[icingaclient](ic)
+.
+
+Follow the instructions in the icingaclient(1) README for installation.
+
+Other prerequisite packages on Debian-based distributions:
+
  - php-curl
  - nsis
+
+[ic]: https://github.com/sol1/icingaclient
 
 ## Installation
 Build and install the package with `make`:
