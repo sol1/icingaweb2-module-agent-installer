@@ -5,7 +5,7 @@ Windows .exe installer in a single click
 ## Dependencies
 
 For now, this module is a front end for a shell script,
-[icingaclient](ic)
+[icingaclient](https://github.com/sol1/icingaclient)
 .
 
 Follow the instructions in the icingaclient(1) README for installation.
@@ -15,7 +15,6 @@ Other prerequisite packages on Debian-based distributions:
  - php-curl
  - nsis
 
-[ic]: https://github.com/sol1/icingaclient
 
 ## Installation
 Build and install the package with `make`:
