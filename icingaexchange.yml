@@ -8,11 +8,11 @@ type: Module
 license: gplv3
 releases: 
   - 
-    name: 0.1 
-    description: "Initial release"
+    name: 1.0
+    description: "WorksForNOw"
     files: 
       - 
         name: Agent Installer Module
-        url: "https://github.com/sol1/icingaweb2-module-agent-installer/archive/0.1.zip"
+        url: "https://github.com/sol1/icingaweb2-module-agent-installer/archive/1.0.zip"
         description: "First release"
-        checksum: a89dcc6f6a05073eedf1fc8dd6c61e92
+        checksum: 9f0809c223c7175c94509f7ccc2b87f4

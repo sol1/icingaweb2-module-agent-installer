@@ -1,4 +1,4 @@
 Module: AgentInstaller
-Version: 0.1
+Version: 1.0
 Description: Agent installer
   This module adds the ability to generate a windows installer for a new agent, based on a few paremeters.
