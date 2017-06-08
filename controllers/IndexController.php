@@ -33,6 +33,12 @@ class AgentInstaller_IndexController extends Controller {
 		return $confstr;
 	}
 
+	/*
+	 * newpackage creates a new configuration package via the Icinga2
+	 * API. It takes the name of a package as an argument and submits a
+	 * request to the HTTP API. newpackage returns true or false upon a
+	 * successful or failed request respectively.
+	 */
 	protected function newpackage(string $package) {
 		$API_username = $this->Config()->get(
 		    'agentinstaller', 'apikey', '');
@@ -86,7 +92,10 @@ class AgentInstaller_IndexController extends Controller {
 		}
 	}
 
-	/* Return a list of all configuration packages. */
+	/*
+	 * lspkg returns an array of names of current configuration packages. On
+	 * failure false is returned.
+	 */
 	protected function lspkg() {
 		$API_username = $this->Config()->get(
 		    'agentinstaller', 'apikey', '');
@@ -173,7 +182,11 @@ class AgentInstaller_IndexController extends Controller {
 		}
 	}
 
-	/* For a given stage, enumerate files into an array of files. */
+	/*
+	 * lsstage queries the Icinga2 HTTP API to generate a list of the files
+	 * present in the given package and stage. The list is returned as an
+	 * array of filename strings, or false on error.
+	 */
 	protected function lsstage(string $package, string $stage) {
 		$API_username = $this->Config()->get('agentinstaller',
 		    'apikey', '');
@@ -188,9 +201,12 @@ class AgentInstaller_IndexController extends Controller {
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_USERPWD, $API_username . ":" . $API_password);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		    'Content-Type:application/json',
-		    'Accept:application/json'));
+		curl_setopt($ch, CURLOPT_HTTPHEADER,
+		    array(
+			'Content-Type:application/json',
+			'Accept:application/json'
+		    )
+		);
 
 		$status = 0;
 		$res = curl_exec($ch);
